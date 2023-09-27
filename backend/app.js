@@ -1,3 +1,3 @@
-const a = 'a';
-
-console.log(a);
+export default () => {
+  console.log('Olá mundo');
+};
