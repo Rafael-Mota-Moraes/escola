@@ -4,7 +4,8 @@ class UserController {
   async store(req, res) {
     try {
       const novoUser = await User.create(req.body);
-      return res.json({ user: novoUser });
+      const { id, nome, email } = novoUser;
+      return res.json({ id, nome, email });
     } catch (e) {
       return res.status(400).json({ errors: e.errors.map((err) => err.message) });
     }
@@ -12,9 +13,8 @@ class UserController {
 
   async index(req, res) {
     try {
-      const users = await User.findAll();
-      console.log(req.userId);
-      console.log(req.userEmail);
+      const users = await User.findAll({ attributes: ['id', 'nome', 'email'] });
+
       return res.json(users);
     } catch (e) {
       return res.status(400).json({ errors: e.errors.map((err) => err.message) });
@@ -23,9 +23,10 @@ class UserController {
 
   async show(req, res) {
     try {
-      const { id } = req.params;
-      const user = await User.findByPk(id);
-      return res.json(user);
+      const user = await User.findByPk(req.params.id);
+
+      const { id, nome, email } = user;
+      return res.json({ id, nome, email });
     } catch (e) {
       return res.status(400).json({ errors: e.errors.map((err) => err.message) });
     }
@@ -33,15 +34,7 @@ class UserController {
 
   async update(req, res) {
     try {
-      if (!req.params.id) {
-        return res.status(400).json({
-          errors:
-          ['ID não enviado.'],
-        });
-      }
-
-      const { id } = req.params;
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(req.userId);
 
       if (!user) {
         return res.status(400).json({
@@ -51,8 +44,8 @@ class UserController {
       }
 
       const novosDados = await user.update(req.body);
-
-      return res.json(novosDados);
+      const { id, nome, email } = novosDados;
+      return res.json({ id, nome, email });
     } catch (e) {
       console.log(e);
       return res.status(400).json({ errors: e.errors?.map((err) => err.message) });
@@ -61,14 +54,7 @@ class UserController {
 
   async delete(req, res) {
     try {
-      if (!req.params.id) {
-        return res.status(400).json({
-          errors:
-          ['ID não enviado.'],
-        });
-      }
-
-      const { id } = req.params;
+      const id = req.userId;
       const user = await User.findByPk(id);
 
       if (!user) {
